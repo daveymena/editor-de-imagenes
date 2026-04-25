@@ -41,8 +41,17 @@
                     <div class="color-dot" style="background: #000000;" onclick="updateStyle('color', '#000000')"></div>
                     <div class="color-dot" style="background: #2563eb;" onclick="updateStyle('color', '#2563eb')"></div>
                     <div class="color-dot" style="background: #dc2626;" onclick="updateStyle('color', '#dc2626')"></div>
-                    <div class="color-dot" style="background: #059669;" onclick="updateStyle('color', '#059669')"></div>
                     <input type="color" onchange="updateStyle('color', this.value)" title="Color personalizado">
+                </div>
+            </div>
+
+            <div class="tool-section" style="margin-top: 15px;">
+                <label>Fondo del Parche</label>
+                <div class="color-grid">
+                    <div class="color-dot" style="background: #ffffff; border: 1px solid #ccc;" onclick="updateStyle('backgroundColor', '#ffffff')"></div>
+                    <div class="color-dot" style="background: #f3f4f6;" onclick="updateStyle('backgroundColor', '#f3f4f6')"></div>
+                    <div class="color-dot" style="background: #e5e7eb;" onclick="updateStyle('backgroundColor', '#e5e7eb')"></div>
+                    <input type="color" value="#ffffff" onchange="updateStyle('backgroundColor', this.value)" title="Color de fondo">
                 </div>
             </div>
 

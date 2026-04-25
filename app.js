@@ -100,8 +100,12 @@ async function processArea(l, t, w, h) {
         const res = await Tesseract.recognize(canvas.toDataURL(), 'spa');
         const text = res.data.text.trim();
 
+        // Sample background color (average of corners)
+        const p = ctx.getImageData(0, 0, 1, 1).data;
+        const bgColor = `rgb(${p[0]}, ${p[1]}, ${p[2]})`;
+
         if (text) {
-            addEditableBlock(l, t, w, h, text);
+            addEditableBlock(l, t, w, h, text, bgColor);
         }
     } catch (e) {
         alert('Error en selección');
@@ -110,7 +114,7 @@ async function processArea(l, t, w, h) {
     }
 }
 
-function addEditableBlock(l, t, w, h, text) {
+function addEditableBlock(l, t, w, h, text, bgColor = '#ffffff') {
     const block = document.createElement('div');
     block.className = 'editable-block editing';
     block.contentEditable = true;
@@ -119,6 +123,7 @@ function addEditableBlock(l, t, w, h, text) {
     block.style.top = t + 'px';
     block.style.width = w + 'px';
     block.style.height = h + 'px';
+    block.style.backgroundColor = bgColor;
     
     // Auto-adjust font size based on block height but more reasonably
     const fontSize = Math.max(12, Math.min(h / 3, 24));
@@ -256,8 +261,8 @@ async function exportAsImage() {
         const f = parseFloat(b.style.fontSize) * sY;
         const padding = 10 * sX;
 
-        // 1. Limpiar el fondo con el color del bloque (blanco por defecto)
-        ctx.fillStyle = 'white';
+        // 1. Limpiar el fondo con el color específico del bloque
+        ctx.fillStyle = b.style.backgroundColor || 'white';
         ctx.fillRect(x, y, w, h);
 
         // 2. Configurar estilo de texto
