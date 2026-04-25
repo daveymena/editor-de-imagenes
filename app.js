@@ -127,13 +127,28 @@ function addEditableBlock(l, t, w, h, text) {
     const confirmBtn = document.createElement('button');
     confirmBtn.innerHTML = '<i data-lucide="check"></i>';
     confirmBtn.className = 'confirm-btn';
-    confirmBtn.title = "Confirmar edición";
+    confirmBtn.title = "Confirmar y Guardar";
     confirmBtn.onclick = (e) => {
         e.stopPropagation();
         confirmBlock(block);
     };
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerHTML = '<i data-lucide="trash-2"></i>';
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.title = "Eliminar cuadro";
+    deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        block.remove();
+        selectedBlock = null;
+    };
+
     block.appendChild(confirmBtn);
+    block.appendChild(deleteBtn);
+    
+    // Initialize icons for both buttons
     lucide.createIcons({attrs: {'data-lucide': 'check'}, nameAttr: 'data-lucide', scope: confirmBtn});
+    lucide.createIcons({attrs: {'data-lucide': 'trash-2'}, nameAttr: 'data-lucide', scope: deleteBtn});
 
     block.onfocus = () => {
         selectedBlock = block;

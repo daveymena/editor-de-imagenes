@@ -43,8 +43,9 @@ header { height: 60px; background: var(--sidebar); border-bottom: 1px solid var(
     z-index: 500;
     pointer-events: auto;
     white-space: pre-wrap;
-    overflow: hidden;
+    /* overflow: hidden;  <-- ELIMINADO PARA QUE LOS BOTONES SE VEAN */
     transition: 0.2s;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
 }
 
 .editable-block.editing {
@@ -65,37 +66,38 @@ header { height: 60px; background: var(--sidebar); border-bottom: 1px solid var(
     border: 1px dashed var(--primary);
 }
 
-.confirm-btn {
+.confirm-btn, .delete-btn {
     position: absolute;
-    top: -20px;
-    right: -20px;
-    background: #10b981; /* Green for confirm */
+    top: -35px;
+    background: #10b981;
     color: white;
     border: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 700;
-    transition: transform 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: all 0.2s;
 }
 
-.confirm-btn:hover {
-    transform: scale(1.1);
-    background: #059669;
-}
+.confirm-btn { right: 0; }
+.delete-btn { right: 40px; background: #ef4444; }
 
-.editable-block.editing .confirm-btn {
+.confirm-btn:hover { transform: scale(1.1); background: #059669; }
+.delete-btn:hover { transform: scale(1.1); background: #dc2626; }
+
+.editable-block.editing .confirm-btn,
+.editable-block.editing .delete-btn {
     display: flex;
 }
 
-.confirm-btn svg {
-    width: 16px;
-    height: 16px;
+.confirm-btn svg, .delete-btn svg {
+    width: 18px;
+    height: 18px;
 }
 
 .ai-input { width: 100%; height: 120px; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 10px 0; resize: none; }
