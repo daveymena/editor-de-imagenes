@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionEdit Studio | Selección de Precisión</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/tesseract.js@v4.0.1/dist/tesseract.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">VisionEdit STUDIO</div>
+        <div class="toolbar">
+            <div class="tool-grp">
+                <button class="btn-icon" onclick="zoom(0.1)" title="Zoom +"><i data-lucide="zoom-in"></i></button>
+                <button class="btn-icon" onclick="zoom(-0.1)" title="Zoom -"><i data-lucide="zoom-out"></i></button>
+            </div>
+            <button class="btn-blue" onclick="exportAsImage()" style="width: auto; padding: 8px 16px;">
+                <i data-lucide="save"></i> Guardar Imagen
+            </button>
+        </div>
+    </header>
+
+    <div class="app-main">
+        <aside class="side">
+            <h4 style="font-size: 0.7rem; color: #64748b; margin-bottom: 20px;">INSTRUCCIONES</h4>
+            <p style="font-size: 0.8rem; line-height: 1.5;">1. Sube tu JPG.<br>2. <b>Arrastra el ratón</b> para seleccionar el párrafo que quieras editar.<br>3. Escribe directamente.</p>
+            
+            <div id="upload-zone" class="upload-zone" style="margin-top: 30px;">
+                <i data-lucide="plus-circle" style="margin-bottom: 10px;"></i>
+                <span style="font-size: 0.8rem;">Subir Documento</span>
+                <input type="file" id="file-input" accept="image/*" hidden>
+            </div>
+
+            <div style="margin-top: auto; font-size: 0.7rem; color: #94a3b8;">
+                <span id="status-text">Ollama: Desconectado</span>
+            </div>
+        </aside>
+
+        <main class="viewport">
+            <div id="workspace-wrapper">
+                <div id="workspace" class="workspace">
+                    <img id="original-image" src="" alt="">
+                    <div id="text-overlay" class="text-layer"></div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="side side-r">
+            <h4 style="font-size: 0.7rem; color: #64748b; margin-bottom: 10px;">ASISTENTE IA</h4>
+            <textarea id="ai-prompt" class="ai-input" placeholder="Ej: Resume este bloque..."></textarea>
+            <button class="btn-blue" onclick="processWithAI()">
+                <i data-lucide="sparkles"></i> Aplicar IA
+            </button>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn-icon" style="width: 100%; text-align: left; margin-bottom: 5px;" onclick="quickAI('Resume de forma profesional')">Resumir</button>
+                <button class="btn-icon" style="width: 100%; text-align: left; margin-bottom: 5px;" onclick="quickAI('Traduce al inglés')">Traducir</button>
+            </div>
+        </aside>
+    </div>
+
+    <div id="loader" class="loader">
+        <div class="spin"></div>
+        <h3 id="loader-text" style="margin-top: 20px; font-size: 1rem;">Analizando...</h3>
+    </div>
+
+    <script src="app.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
