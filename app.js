@@ -119,35 +119,32 @@ function addEditableBlock(l, t, w, h, text) {
     block.style.top = t + 'px';
     block.style.width = w + 'px';
     block.style.height = h + 'px';
-    block.style.fontSize = Math.min(h / 3, 16) + 'px';
+    
+    // Auto-adjust font size based on block height but more reasonably
+    const fontSize = Math.max(12, Math.min(h / 3, 24));
+    block.style.fontSize = fontSize + 'px';
 
     const confirmBtn = document.createElement('button');
-    confirmBtn.innerHTML = '✓';
+    confirmBtn.innerHTML = '<i data-lucide="check"></i>';
     confirmBtn.className = 'confirm-btn';
-    confirmBtn.style.display = 'flex'; // Always show while editing
+    confirmBtn.title = "Confirmar edición";
     confirmBtn.onclick = (e) => {
         e.stopPropagation();
         confirmBlock(block);
     };
     block.appendChild(confirmBtn);
+    lucide.createIcons({attrs: {'data-lucide': 'check'}, nameAttr: 'data-lucide', scope: confirmBtn});
 
     block.onfocus = () => {
         selectedBlock = block;
         block.classList.remove('confirmed');
         block.classList.add('editing');
-        confirmBtn.style.display = 'flex';
-    };
-
-    // Auto-save when clicking elsewhere
-    block.onblur = () => {
-        // Short delay to allow button clicks to register first
-        setTimeout(() => confirmBlock(block), 100);
     };
 
     block.onkeydown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            confirmBlock(block);
+            block.blur();
         }
     };
 
@@ -156,13 +153,9 @@ function addEditableBlock(l, t, w, h, text) {
 }
 
 function confirmBlock(block) {
-    if (!block.classList.contains('editing')) return;
-    
     block.classList.remove('editing');
     block.classList.add('confirmed');
-    
-    const btn = block.querySelector('.confirm-btn');
-    if (btn) btn.style.display = 'none';
+    selectedBlock = null;
 }
 
 // UI Controls
@@ -194,9 +187,14 @@ async function processWithAI() {
 }
 
 async function exportAsImage() {
-    showLoader('Guardando...');
+    showLoader('Generando archivo final...');
+    // Deseleccionar cualquier bloque activo para un guardado limpio
+    document.querySelectorAll('.editable-block').forEach(b => b.classList.remove('editing'));
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    
+    // Usar dimensiones naturales para máxima calidad
     canvas.width = originalImage.naturalWidth;
     canvas.height = originalImage.naturalHeight;
     ctx.drawImage(originalImage, 0, 0);
@@ -210,19 +208,59 @@ async function exportAsImage() {
         const w = parseFloat(b.style.width) * sX;
         const h = parseFloat(b.style.height) * sY;
         const f = parseFloat(b.style.fontSize) * sY;
+        const padding = 10 * sX;
 
+        // 1. Limpiar el fondo con el color del bloque (blanco por defecto)
         ctx.fillStyle = 'white';
         ctx.fillRect(x, y, w, h);
-        ctx.fillStyle = b.style.color || 'black';
-        ctx.font = `${f}px Inter, sans-serif`;
-        ctx.fillText(b.innerText, x, y + f);
+
+        // 2. Configurar estilo de texto
+        ctx.fillStyle = b.style.color || '#1e293b';
+        ctx.font = `${f}px 'Inter', sans-serif`;
+        ctx.textBaseline = 'top';
+
+        // 3. Dibujar texto con soporte multilínea
+        const text = b.innerText;
+        const lineHeight = f * 1.2;
+        const maxWidth = w - (padding * 2);
+        
+        drawMultilineText(ctx, text, x + padding, y + padding, maxWidth, lineHeight);
     });
 
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/jpeg', 0.95);
-    link.download = 'documento-editado.jpg';
-    link.click();
-    hideLoader();
+    try {
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/jpeg', 0.95);
+        link.download = `vision-edit-${Date.now()}.jpg`;
+        link.click();
+    } catch(err) {
+        alert("Error al exportar. Intenta con una imagen más pequeña.");
+    } finally {
+        hideLoader();
+    }
+}
+
+function drawMultilineText(ctx, text, x, y, maxWidth, lineHeight) {
+    const paragraphs = text.split('\n');
+    let currentY = y;
+
+    paragraphs.forEach(paragraph => {
+        const words = paragraph.split(' ');
+        let line = '';
+
+        for (let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + ' ';
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth && n > 0) {
+                ctx.fillText(line, x, currentY);
+                line = words[n] + ' ';
+                currentY += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        ctx.fillText(line, x, currentY);
+        currentY += lineHeight;
+    });
 }
 
 function showLoader(t) { loader.style.display = 'flex'; loaderText.innerText = t; }
