@@ -131,7 +131,7 @@ function addEditableBlock(l, t, w, h, text) {
     confirmBtn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        confirmBlock(block);
+        block.blur(); // Triggers auto-confirm
     };
 
     const deleteBtn = document.createElement('button');
@@ -153,9 +153,26 @@ function addEditableBlock(l, t, w, h, text) {
     lucide.createIcons({attrs: {'data-lucide': 'trash-2'}, nameAttr: 'data-lucide', scope: deleteBtn});
 
     block.onfocus = () => {
+        // Auto-confirm others when focusing this one
+        document.querySelectorAll('.editable-block').forEach(b => {
+            if(b !== block) confirmBlock(b);
+        });
+        
         selectedBlock = block;
-        document.querySelectorAll('.editable-block').forEach(b => b.classList.remove('editing'));
+        block.classList.remove('confirmed');
         block.classList.add('editing');
+        
+        // Sync sidebar controls
+        syncSidebar(block);
+    };
+
+    block.onblur = () => {
+        // Delay to allow clicking buttons
+        setTimeout(() => {
+            if (document.activeElement !== block && !block.contains(document.activeElement)) {
+                confirmBlock(block);
+            }
+        }, 150);
     };
 
     block.onkeydown = (e) => {
@@ -182,8 +199,20 @@ function zoom(val) {
     workspace.style.transformOrigin = 'top left';
 }
 
-function applyStyle(prop, val) {
-    if (selectedBlock) selectedBlock.style[prop] = val;
+function updateStyle(prop, val) {
+    if (selectedBlock) {
+        selectedBlock.style[prop] = val;
+        if(prop === 'fontSize') {
+            document.getElementById('font-size-label').innerText = val;
+            document.getElementById('font-size-slider').value = parseInt(val);
+        }
+    }
+}
+
+function syncSidebar(block) {
+    const fs = parseInt(block.style.fontSize) || 16;
+    document.getElementById('font-size-label').innerText = fs + 'px';
+    document.getElementById('font-size-slider').value = fs;
 }
 
 async function processWithAI() {
